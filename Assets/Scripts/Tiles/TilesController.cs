@@ -19,14 +19,12 @@ namespace FruitScapes.Tiles
         private int _rowMax;
         private int[,] _mapIDs;
 
-        private void Start()
+        private void Awake()
         {
             _colMax = _sandTileMap.size.y;
             _rowMax = _sandTileMap.size.x;
             _mapIDs = new int[_colMax, _rowMax];
             _gemsContainer = new GameObject("GemsContainer");
-            GameObject[,] asd;
-            GenerateInTiles(out asd);
         }
 
         public void GenerateInTiles(out GameObject[,] allObjects)
@@ -54,15 +52,31 @@ namespace FruitScapes.Tiles
             Debug.Log("Frits Generated");
         }
 
+        public Vector2 GetPosWithCoordinate(int col, int row)
+        {
+            var allPositions = _sandTileMap.cellBounds.allPositionsWithin;
+            for (int i = 0; i < _colMax; i++)
+            {
+                for (int j = 0; j < _rowMax; j++)
+                {
+                    allPositions.MoveNext();
+                    if (col == i && row == j)
+                        return _sandTileMap.GetCellCenterWorld(allPositions.Current);
+                }
+            }
+            return Vector2.zero;
+        }
+
         public GameObject CreateFruit(Vector3 pos, int col, int row)
         {
             GameObject newFruit = Instantiate(_fruitPrefab, pos, Quaternion.identity);
             newFruit.name = "Fruit";
-            newFruit.GetComponent<MapObject>().SetColRow(col, row);
+            newFruit.GetComponent<Movable>().SetColRow(col, row);
             SetAppearance(col, row, newFruit);
             newFruit.transform.parent = _gemsContainer.transform;
             return newFruit;
         }
+
         private void SetAppearance(int i, int j, GameObject fruit)
         {
             ObjectAppearance tempAppearance = _objectsData.GetRandomAppearance();
@@ -75,6 +89,16 @@ namespace FruitScapes.Tiles
             }
             _mapIDs[i, j] = tempAppearance.Id;
             fruit.GetComponent<MapObject>().SetSprite(tempAppearance.Sprite);
+        }
+
+        public GameObject CreateEmpty(Vector2 pos)
+        {
+            GameObject empty = new GameObject("Empty");
+            empty.AddComponent<Empty>();
+            empty.AddComponent<Movable>();
+            empty.AddComponent<MapObject>();
+            empty.transform.position = pos;
+            return empty;
         }
 
         private bool IMatch(int i, int j, int id)
