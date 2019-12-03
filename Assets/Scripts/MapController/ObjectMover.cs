@@ -15,6 +15,7 @@ namespace FruitScapes.MapController
 
         private GameObject[,] _allObjects;
         private ObjectAnalys objAnalys;
+        private ObjectFinder finder;
         private GameState gameState;
         private void Start()
         {
@@ -22,6 +23,7 @@ namespace FruitScapes.MapController
             EventHolder.moveEvent.AddListener(TryToChange);
             EventHolder.destroyEvent.AddListener(MoveDown);
             objAnalys = new ObjectAnalys();
+            finder = new ObjectFinder();
             gameState = GameState.Move;
         }
 
@@ -43,13 +45,14 @@ namespace FruitScapes.MapController
                 gameState = GameState.Wait;
                 ChangeFruits(mainFruit, otherFruit);
                 EventHolder.startAnimation.Invoke();
-                if (objAnalys.FindMatches(_allObjects, true) == false)
+                List<Combine> matchesList = finder.GetCombinedObjects(_allObjects);
+                if (matchesList.Count == 0)
                 {
                     StartCoroutine(RevertGems(mainFruit, otherFruit));
                 }
                 else
                 {
-                    objAnalys.FindMatches(_allObjects);
+                    objAnalys.MakeDamage(matchesList);
                     StartCoroutine(objAnalys.GemsDestroy(_allObjects, 0.4f));
                 }
             }
@@ -112,13 +115,14 @@ namespace FruitScapes.MapController
                 }
                 
             }
+            List<Combine> matchesList = finder.GetCombinedObjects(_allObjects);
             if (iCreate)
             {
                 MoveDown();
             }
-            else if (objAnalys.FindMatches(_allObjects, true) == true)
+            else if (matchesList.Count > 0)
             {
-                objAnalys.FindMatches(_allObjects);
+                objAnalys.MakeDamage(matchesList);
                 StartCoroutine(objAnalys.GemsDestroy(_allObjects, 0.3f));
             }
             else
@@ -130,7 +134,6 @@ namespace FruitScapes.MapController
 
         private void FallingDown()
         {
-            ObjectFinder finder = new ObjectFinder();
             for (int j = 0; j < _allObjects.GetLength(1); j++)
             {
                 Empty lastEmpty = finder.GetLastEmpty(j, _allObjects);

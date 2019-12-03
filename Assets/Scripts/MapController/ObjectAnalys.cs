@@ -10,40 +10,10 @@ namespace FruitScapes.MapController
 {
     public class ObjectAnalys
     {
-        public bool FindMatches(GameObject[,] allObjects, bool onlycheck = false)
+        public void MakeDamage(List<Combine> matchesList)
         {
-            for (int i = 0; i < allObjects.GetLength(0); i++)
-            {
-                for (int j = 0; j < allObjects.GetLength(1); j++)
-                {
-                    Combine middleCombine = allObjects[i, j].GetComponent<Combine>();
-                    if (middleCombine == null)
-                        continue;
-                    Combine leftGemCode = middleCombine.GetNeighborCombine(Vector2Int.left, allObjects);
-                    Combine rightGemCode = middleCombine.GetNeighborCombine(Vector2Int.right, allObjects);
-                    Combine upGemCode = middleCombine.GetNeighborCombine(Vector2Int.up, allObjects);
-                    Combine downGemCode = middleCombine.GetNeighborCombine(Vector2Int.down, allObjects);
-
-                    if (leftGemCode != null && rightGemCode != null)
-                        if (middleCombine.Id == leftGemCode.Id && middleCombine.Id == rightGemCode.Id)
-                        {
-                            if (onlycheck) return true;
-                            middleCombine.GetDamage();
-                            leftGemCode.GetDamage();
-                            rightGemCode.GetDamage();
-                        }
-                    if (upGemCode != null && downGemCode != null)
-                        if (middleCombine.Id == upGemCode.Id && middleCombine.Id == downGemCode.Id)
-                        {
-                            if (onlycheck) return true;
-                            middleCombine.GetDamage();
-                            upGemCode.GetDamage();
-                            downGemCode.GetDamage();
-                        }
-                }
-            }
-
-            return false;
+            foreach (Combine match in matchesList)
+                match.GetDamage();
         }
 
         public IEnumerator GemsDestroy(GameObject[,] allObjects, float destroyTime)
