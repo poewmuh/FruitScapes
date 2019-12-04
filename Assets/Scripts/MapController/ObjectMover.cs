@@ -33,6 +33,11 @@ namespace FruitScapes.MapController
                 SceneManager.LoadScene(0);
         }
 
+        public GameObject[,] GetAllObjects()
+        {
+            return _allObjects;
+        }
+
         public void TryToChange(FruitWithDir data)
         {
             if (gameState == GameState.Wait)
@@ -68,7 +73,7 @@ namespace FruitScapes.MapController
             yield break;
         }
 
-        private void ChangeFruits(Movable fruit1, Movable fruit2, bool secondInstant = false)
+        public void ChangeFruits(Movable fruit1, Movable fruit2, bool secondInstant = false, bool onlyLogic = false)
         {
             int oldCol = fruit1.GetCol;
             int oldRow = fruit1.GetRow;
@@ -76,7 +81,8 @@ namespace FruitScapes.MapController
 
             fruit1.SetColRow(fruit2.GetCol, fruit2.GetRow, _allObjects);
             fruit2.SetColRow(oldCol, oldRow, _allObjects);
-
+            if (onlyLogic)
+                return;
             fruit1.LerpMeTo(_tilesHolder.GetPosWithCoordinate(fruit1.GetCol, fruit1.GetRow));
             if (!secondInstant)
                 fruit2.LerpMeTo(oldPos);
