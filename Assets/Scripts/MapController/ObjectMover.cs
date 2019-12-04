@@ -117,7 +117,7 @@ namespace FruitScapes.MapController
                     GameObject trash = _allObjects[_allObjects.GetLength(0) - 1, j];
                     _allObjects[_allObjects.GetLength(0) - 1, j] = _tilesHolder.CreateFruit(new Vector3(_allObjects[_allObjects.GetLength(0) - 1, j].transform.position.x, _allObjects[_allObjects.GetLength(0) - 1, j].transform.position.y + 0.82f), _allObjects.GetLength(0) - 1, j);
                     Destroy(trash);
-                    _allObjects[_allObjects.GetLength(0) - 1, j].GetComponent<Movable>().SmoothCreate();
+                    _allObjects[_allObjects.GetLength(0) - 1, j].GetComponent<Animeted>().SmoothCreate();
                 }
                 
             }

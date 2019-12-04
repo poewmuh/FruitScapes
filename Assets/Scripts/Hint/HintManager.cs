@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using FruitScapes.MapController;
 using FruitScapes.Components;
+using FruitScapes.Events;
 
 namespace FruitScapes.Hint
 {
@@ -10,15 +11,34 @@ namespace FruitScapes.Hint
     {
         [SerializeField]
         private ObjectMover mover;
+        [SerializeField]
+        private float timeToHint;
+        private float timer = 0;
+
+        private void Start()
+        {
+            EventHolder.destroyEvent.AddListener(ClearTimer);
+        }
+
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.P))
-                FindBigHint();
+            timer += Time.deltaTime;
+            if (timer > timeToHint)
+            {
+                if (TryFindHint(true) == false)
+                    TryFindHint(false);
+                timer = 0;
+            }
+        }
+
+        private void ClearTimer()
+        {
+            timer = 0;
         }
 
 
-        private void FindLowHint()
+        private bool TryFindHint(bool isBigHint)
         {
             GameObject[,] allObjects = mover.GetAllObjects();
             for (int i = 0; i < allObjects.GetLength(0); i++)
@@ -32,42 +52,17 @@ namespace FruitScapes.Hint
                     Movable upMovable = curMovable.GetNeighborMovable(Vector2Int.up, allObjects);
                     if (rightMovable != null)
                     {
-                        if (TryAnimateHint(curMovable, rightMovable, allObjects, false) == true)
-                            return;
+                        if (TryAnimateHint(curMovable, rightMovable, Vector2Int.right, allObjects, isBigHint) == true)
+                            return true;
                     }
                     if (upMovable != null)
                     {
-                        if (TryAnimateHint(curMovable, upMovable, allObjects, false) == true)
-                            return;
+                        if (TryAnimateHint(curMovable, upMovable, Vector2Int.up, allObjects, isBigHint) == true)
+                            return true;
                     }
 
                 }
-        }
-
-        private void FindBigHint()
-        {
-            GameObject[,] allObjects = mover.GetAllObjects();
-            for (int i = 0; i < allObjects.GetLength(0); i++)
-                for (int j = 0; j < allObjects.GetLength(1); j++)
-                {
-
-                    Movable curMovable = allObjects[i, j].GetComponent<Movable>();
-                    if (curMovable == null)
-                        continue;
-                    Movable rightMovable = curMovable.GetNeighborMovable(Vector2Int.right, allObjects);
-                    Movable upMovable = curMovable.GetNeighborMovable(Vector2Int.up, allObjects);
-                    if (rightMovable != null)
-                    {
-                        if (TryAnimateHint(curMovable, rightMovable, allObjects, true) == true)
-                            return;
-                    }
-                    if (upMovable != null)
-                    {
-                        if (TryAnimateHint(curMovable, upMovable, allObjects, true) == true)
-                            return;
-                    }
-
-                }
+            return false;
         }
 
         private List<Combine> GetPotentialMatchs(Movable fruit1, Movable fruit2, GameObject[,] allObjects, int matchCount)
@@ -117,21 +112,42 @@ namespace FruitScapes.Hint
             return null;
         }
 
-        private bool TryAnimateHint(Movable curMovable, Movable otherMovable, GameObject[,] allObjects, bool findBigMatch)
+        private bool TryAnimateHint(Movable curMovable, Movable otherMovable, Vector2Int dir, GameObject[,] allObjects, bool findBigMatch)
         {
             int maxMatch;
             if (findBigMatch)
                 maxMatch = 3;
             else
                 maxMatch = 0;
-           
+
             List<Combine> combineList = GetPotentialMatchs(curMovable, otherMovable, allObjects, maxMatch);
-            if (combineList == null)
-                combineList = GetPotentialMatchs(curMovable, otherMovable, allObjects, maxMatch);
             if (combineList != null)
             {
+                if (combineList.Contains(curMovable.GetComponent<Combine>()))
+                {
+                    if (dir == Vector2Int.up)
+                        curMovable.GetComponent<Animeted>().HintUp();
+                    else
+                        curMovable.GetComponent<Animeted>().HintRight();
+                }
+                else
+                {
+                    if (dir == Vector2Int.up)
+                        otherMovable.GetComponent<Animeted>().HintDown();
+                    else
+                        otherMovable.GetComponent<Animeted>().HintLeft();
+                }
+
                 foreach (Combine combine in combineList)
-                    Destroy(combine.gameObject);
+                {
+                    if (combine.gameObject == curMovable.gameObject)
+                    {
+                        continue;
+                    }
+                    combine.GetComponent<Animeted>().HintScale();
+                }
+
+
                 return true;
             }
             return false;

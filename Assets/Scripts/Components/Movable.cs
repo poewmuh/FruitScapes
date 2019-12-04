@@ -11,7 +11,7 @@ namespace FruitScapes.Components
     {
         private int _col, _row;
         private Queue<Vector2> movePosList;
-        private Animator animator;
+        
 
 
         public int GetCol => _col;
@@ -21,7 +21,7 @@ namespace FruitScapes.Components
         private void Awake()
         {
             movePosList = new Queue<Vector2>();
-            animator = GetComponent<Animator>();
+            
         }
 
         private void Start()
@@ -37,10 +37,7 @@ namespace FruitScapes.Components
             }
         }
 
-        public void SmoothCreate()
-        {
-            animator.SetTrigger("Start");
-        }
+
         
 
         private IEnumerator AnimateMe()
