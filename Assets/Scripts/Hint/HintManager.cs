@@ -32,13 +32,13 @@ namespace FruitScapes.Hint
             }
         }
 
-        private void ClearTimer()
+        public void ClearTimer()
         {
             timer = 0;
         }
 
 
-        private bool TryFindHint(bool isBigHint)
+        public bool TryFindHint(bool isBigHint, bool onlycheck = false)
         {
             GameObject[,] allObjects = mover.GetAllObjects();
             for (int i = 0; i < allObjects.GetLength(0); i++)
@@ -52,12 +52,12 @@ namespace FruitScapes.Hint
                     Movable upMovable = curMovable.GetNeighborMovable(Vector2Int.up, allObjects);
                     if (rightMovable != null)
                     {
-                        if (TryAnimateHint(curMovable, rightMovable, Vector2Int.right, allObjects, isBigHint) == true)
+                        if (TryAnimateHint(curMovable, rightMovable, Vector2Int.right, allObjects, isBigHint, onlycheck) == true)
                             return true;
                     }
                     if (upMovable != null)
                     {
-                        if (TryAnimateHint(curMovable, upMovable, Vector2Int.up, allObjects, isBigHint) == true)
+                        if (TryAnimateHint(curMovable, upMovable, Vector2Int.up, allObjects, isBigHint, onlycheck) == true)
                             return true;
                     }
 
@@ -70,37 +70,10 @@ namespace FruitScapes.Hint
             ObjectFinder finder = new ObjectFinder();
             mover.ChangeFruits(fruit1, fruit2, false, true);
             List<Combine> matchList = finder.GetCombinedObjects(allObjects);
-            int different = 0;
+            
             if (matchList.Count > 0)
             {
-                for (int i = 1; i < matchList.Count; i++)
-                {
-                    if (matchList[0].Id != matchList[i].Id)
-                        different++;
-                }
-                if (different > (matchList.Count / 2))
-                {
-                    for (int i = 1; i < matchList.Count; i++)
-                    {
-                        if (matchList[0].Id == matchList[i].Id)
-                        {
-                            matchList.RemoveAt(i);
-                            i--;
-                        }
-                    }
-                    matchList.RemoveAt(0);
-                }
-                else
-                {
-                    for (int i = 1; i < matchList.Count; i++)
-                    {
-                        if (matchList[0].Id != matchList[i].Id)
-                        {
-                            matchList.RemoveAt(i);
-                            i--;
-                        }
-                    }
-                }
+                ClearExcess(matchList);
             }
 
             if (matchList.Count > matchCount)
@@ -112,7 +85,40 @@ namespace FruitScapes.Hint
             return null;
         }
 
-        private bool TryAnimateHint(Movable curMovable, Movable otherMovable, Vector2Int dir, GameObject[,] allObjects, bool findBigMatch)
+        private void ClearExcess(List<Combine> matchList)
+        {
+            int different = 0;
+            for (int i = 1; i < matchList.Count; i++)
+            {
+                if (matchList[0].Id != matchList[i].Id)
+                    different++;
+            }
+            if (different > (matchList.Count / 2))
+            {
+                for (int i = 1; i < matchList.Count; i++)
+                {
+                    if (matchList[0].Id == matchList[i].Id)
+                    {
+                        matchList.RemoveAt(i);
+                        i--;
+                    }
+                }
+                matchList.RemoveAt(0);
+            }
+            else
+            {
+                for (int i = 1; i < matchList.Count; i++)
+                {
+                    if (matchList[0].Id != matchList[i].Id)
+                    {
+                        matchList.RemoveAt(i);
+                        i--;
+                    }
+                }
+            }
+        }
+
+        private bool TryAnimateHint(Movable curMovable, Movable otherMovable, Vector2Int dir, GameObject[,] allObjects, bool findBigMatch, bool onlyCheck)
         {
             int maxMatch;
             if (findBigMatch)
@@ -123,6 +129,9 @@ namespace FruitScapes.Hint
             List<Combine> combineList = GetPotentialMatchs(curMovable, otherMovable, allObjects, maxMatch);
             if (combineList != null)
             {
+                if (onlyCheck)
+                    return true;
+
                 if (combineList.Contains(curMovable.GetComponent<Combine>()))
                 {
                     if (dir == Vector2Int.up)

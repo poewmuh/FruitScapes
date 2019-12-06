@@ -8,11 +8,14 @@ namespace FruitScapes.Events
     {
         public static MoveEvent moveEvent = new MoveEvent();
         public static UnityEvent destroyEvent = new UnityEvent();
-        public static UnityEvent startAnimation = new UnityEvent();
+        public static SpeedEvent startAnimation = new SpeedEvent();
     }
 }
 
 namespace FruitScapes.Events.Components
 {
     public class MoveEvent : UnityEvent<FruitWithDir> { };
+    public class SpeedEvent : UnityEvent<float> { };
 }
+
+

@@ -10,16 +10,14 @@ namespace FruitScapes.MapController
         public Empty GetLastEmpty(int row, GameObject[,] allObjects)
         {
             Empty lastEmpty = null;
-            bool iFind = false;
             for (int i = 0; i < allObjects.GetLength(0); i++)
             {
                 Empty tempEmty = allObjects[i, row].GetComponent<Empty>();
-                if (tempEmty != null && iFind == false)
+                if (tempEmty != null)
                 {
                     lastEmpty = tempEmty;
-                    iFind = true;
+                    break;
                 }
-                // TODO: Сделать так что если наткнулся на блокировщик гемов обнулить IEMTY
             }
             return lastEmpty;
         }

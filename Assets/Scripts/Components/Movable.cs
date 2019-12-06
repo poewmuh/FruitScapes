@@ -21,7 +21,6 @@ namespace FruitScapes.Components
         private void Awake()
         {
             movePosList = new Queue<Vector2>();
-            
         }
 
         private void Start()
@@ -29,26 +28,25 @@ namespace FruitScapes.Components
             EventHolder.startAnimation.AddListener(AnimationStart);
         }
 
-        private void AnimationStart()
+        private void AnimationStart(float speed)
         {
             if (movePosList.Count > 0)
             {
-                StartCoroutine(AnimateMe());
+                StartCoroutine(AnimateMe(speed));
             }
         }
 
 
         
 
-        private IEnumerator AnimateMe()
+        private IEnumerator AnimateMe(float speed)
         {
-            StartCoroutine(AllAnimations.SimpleLerp(gameObject, movePosList.Peek(), 0.3f));
+            StartCoroutine(AllAnimations.SimpleLerp(gameObject, movePosList.Peek(), speed));
             movePosList.Dequeue();
             if (movePosList.Count > 0)
             {
-                yield return new WaitForSeconds(0.31f);
-                AnimationStart();
-                yield break;
+                yield return new WaitForSeconds(speed + 0.01f);
+                AnimationStart(speed);
             }
         }
 

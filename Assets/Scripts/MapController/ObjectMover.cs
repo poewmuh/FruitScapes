@@ -5,6 +5,7 @@ using FruitScapes.Components;
 using FruitScapes.Tiles;
 using FruitScapes.Events;
 using FruitScapes.Extensions;
+using FruitScapes.Hint;
 using UnityEngine.SceneManagement;
 
 namespace FruitScapes.MapController
@@ -12,19 +13,43 @@ namespace FruitScapes.MapController
     public class ObjectMover : MonoBehaviour
     {
         [SerializeField] private TilesController _tilesHolder;
+        [SerializeField] private HintManager hintManager;
+        [SerializeField] private float reshuffleDelay;
+        [SerializeField] private float moveSpeed;
 
         private GameObject[,] _allObjects;
-        private ObjectAnalys objAnalys;
+        private ObjectShredder shredder;
         private ObjectFinder finder;
         private GameState gameState;
+
+        private float spawnDelay = 0.2f;
+
+
         private void Start()
         {
-            _tilesHolder.GenerateInTiles(out _allObjects);
             EventHolder.moveEvent.AddListener(TryToChange);
             EventHolder.destroyEvent.AddListener(MoveDown);
-            objAnalys = new ObjectAnalys();
+
+            shredder = new ObjectShredder();
             finder = new ObjectFinder();
+
+            _tilesHolder.GenerateInTiles(out _allObjects);
+            
+            if (hintManager.TryFindHint(false, true) == false)
+                StartCoroutine(ReshuffleFruits());
+
             gameState = GameState.Move;
+        }
+
+        public IEnumerator ReshuffleFruits()
+        {
+            hintManager.ClearTimer();
+            yield return new WaitForSeconds(reshuffleDelay);
+            foreach (GameObject fruit in _allObjects)
+            {
+                Destroy(fruit);
+            }
+            _tilesHolder.GenerateInTiles(out _allObjects);
         }
 
         private void Update()
@@ -49,7 +74,7 @@ namespace FruitScapes.MapController
             {
                 gameState = GameState.Wait;
                 ChangeFruits(mainFruit, otherFruit);
-                EventHolder.startAnimation.Invoke();
+                EventHolder.startAnimation.Invoke(moveSpeed);
                 List<Combine> matchesList = finder.GetCombinedObjects(_allObjects);
                 if (matchesList.Count == 0)
                 {
@@ -57,8 +82,8 @@ namespace FruitScapes.MapController
                 }
                 else
                 {
-                    objAnalys.MakeDamage(matchesList);
-                    StartCoroutine(objAnalys.GemsDestroy(_allObjects, 0.4f));
+                    shredder.MakeDamage(matchesList);
+                    StartCoroutine(shredder.FruitsDestroy(_allObjects, moveSpeed + 0.1f));
                 }
             }
 
@@ -66,9 +91,9 @@ namespace FruitScapes.MapController
 
         private IEnumerator RevertGems(Movable fruit1, Movable fruit2)
         {
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(moveSpeed + 0.1f);
             ChangeFruits(fruit1, fruit2);
-            EventHolder.startAnimation.Invoke();
+            EventHolder.startAnimation.Invoke(moveSpeed);
             gameState = GameState.Move;
             yield break;
         }
@@ -107,35 +132,41 @@ namespace FruitScapes.MapController
         }
         private IEnumerator SpawnNewGems()
         {
-            yield return new WaitForSeconds(0.3f);
-            bool iCreate = false;
+            yield return new WaitForSeconds(spawnDelay);
+            bool iSpawn = false;
             for (int j = 0; j < _allObjects.GetLength(1); j++)
             {
                 if (_allObjects[_allObjects.GetLength(0) - 1, j].GetComponent<Empty>() != null)
                 {
-                    iCreate = true;
+                    iSpawn = true;
                     GameObject trash = _allObjects[_allObjects.GetLength(0) - 1, j];
                     _allObjects[_allObjects.GetLength(0) - 1, j] = _tilesHolder.CreateFruit(new Vector3(_allObjects[_allObjects.GetLength(0) - 1, j].transform.position.x, _allObjects[_allObjects.GetLength(0) - 1, j].transform.position.y + 0.82f), _allObjects.GetLength(0) - 1, j);
                     Destroy(trash);
                     _allObjects[_allObjects.GetLength(0) - 1, j].GetComponent<Animeted>().SmoothCreate();
                 }
-                
             }
+            AfterSpawn(iSpawn);
+            yield break;
+        }
+
+        private void AfterSpawn(bool iSpawn)
+        {
             List<Combine> matchesList = finder.GetCombinedObjects(_allObjects);
-            if (iCreate)
+            if (iSpawn)
             {
                 MoveDown();
             }
             else if (matchesList.Count > 0)
             {
-                objAnalys.MakeDamage(matchesList);
-                StartCoroutine(objAnalys.GemsDestroy(_allObjects, 0.3f));
+                shredder.MakeDamage(matchesList);
+                StartCoroutine(shredder.FruitsDestroy(_allObjects, moveSpeed + 0.1f));
             }
             else
             {
                 gameState = GameState.Move;
+                if (hintManager.TryFindHint(false, true) == false)
+                    StartCoroutine(ReshuffleFruits());
             }
-            yield break;
         }
 
         private void FallingDown()
@@ -160,7 +191,7 @@ namespace FruitScapes.MapController
                     j = -1;
                 }
             }
-            EventHolder.startAnimation.Invoke();
+            EventHolder.startAnimation.Invoke(moveSpeed);
         }
 
     }

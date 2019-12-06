@@ -8,7 +8,7 @@ using FruitScapes.Events;
 
 namespace FruitScapes.MapController
 {
-    public class ObjectAnalys
+    public class ObjectShredder
     {
         public void MakeDamage(List<Combine> matchesList)
         {
@@ -16,7 +16,7 @@ namespace FruitScapes.MapController
                 match.GetDamage();
         }
 
-        public IEnumerator GemsDestroy(GameObject[,] allObjects, float destroyTime)
+        public IEnumerator FruitsDestroy(GameObject[,] allObjects, float destroyTime)
         {
             TilesController tilesControll = new TilesController();
             yield return new WaitForSeconds(destroyTime + 0.01f);
