@@ -25,9 +25,22 @@ namespace FruitScapes.Extensions
         public FruitWithDir() { }
     }
 
+    [System.Serializable]
+    public class MenuDictionary
+    {
+        public MenuState state;
+        public GameObject panelObj;
+    }
+
     public enum GameState
     {
         Move = 0,
         Wait
+    }
+
+    public enum MenuState
+    {
+        Menu = 0,
+        About
     }
 }

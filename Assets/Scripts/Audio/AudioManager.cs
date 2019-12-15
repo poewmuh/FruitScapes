@@ -21,12 +21,14 @@ namespace FruitScapes.Audio
                 Instance = this;
             else if (Instance != this)
                 Destroy(gameObject);
+            
             DontDestroyOnLoad(gameObject);
-            musicPlayer = GetComponent<AudioSource>();
+            
         }
 
         private void Start()
         {
+            musicPlayer = GetComponent<AudioSource>();
             if (SceneManager.GetActiveScene().name == "Game")
                 PlayLevelTrack();
             else

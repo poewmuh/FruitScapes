@@ -22,6 +22,11 @@ namespace FruitScapes.UI
         [SerializeField] private Image soundImage;
         [SerializeField] private Image gameoverImage;
 
+        private void Start()
+        {
+            AudioManager.Instance.PlayLevelTrack();
+        }
+
         public void PauseAction()
         {
             AudioManager.Instance.ButtonSound();
