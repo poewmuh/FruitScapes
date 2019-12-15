@@ -25,7 +25,7 @@ namespace FruitScapes.Extensions
         public FruitWithDir() { }
     }
 
-    enum GameState
+    public enum GameState
     {
         Move = 0,
         Wait

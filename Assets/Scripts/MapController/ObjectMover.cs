@@ -7,6 +7,8 @@ using FruitScapes.Events;
 using FruitScapes.Extensions;
 using FruitScapes.Hint;
 using UnityEngine.SceneManagement;
+using FruitScapes.Task;
+using FruitScapes.Audio;
 
 namespace FruitScapes.MapController
 {
@@ -16,11 +18,12 @@ namespace FruitScapes.MapController
         [SerializeField] private HintManager hintManager;
         [SerializeField] private float reshuffleDelay;
         [SerializeField] private float moveSpeed;
+        [SerializeField] private TaskManager taskManager;
 
         private GameObject[,] _allObjects;
         private ObjectShredder shredder;
         private ObjectFinder finder;
-        private GameState gameState;
+        public GameState gameState;
 
         private float spawnDelay = 0.2f;
 
@@ -50,6 +53,7 @@ namespace FruitScapes.MapController
                 Destroy(fruit);
             }
             _tilesHolder.GenerateInTiles(out _allObjects);
+            AudioManager.Instance.ShuffleSound();
         }
 
         private void Update()
@@ -76,12 +80,14 @@ namespace FruitScapes.MapController
                 ChangeFruits(mainFruit, otherFruit);
                 EventHolder.startAnimation.Invoke(moveSpeed);
                 List<Combine> matchesList = finder.GetCombinedObjects(_allObjects);
+                AudioManager.Instance.SwipeSound();
                 if (matchesList.Count == 0)
                 {
                     StartCoroutine(RevertGems(mainFruit, otherFruit));
                 }
                 else
                 {
+                    taskManager.MadeMove();
                     shredder.MakeDamage(matchesList);
                     StartCoroutine(shredder.FruitsDestroy(_allObjects, moveSpeed + 0.1f));
                 }
@@ -94,6 +100,7 @@ namespace FruitScapes.MapController
             yield return new WaitForSeconds(moveSpeed + 0.1f);
             ChangeFruits(fruit1, fruit2);
             EventHolder.startAnimation.Invoke(moveSpeed);
+            AudioManager.Instance.SwipeSound();
             gameState = GameState.Move;
             yield break;
         }
@@ -128,7 +135,6 @@ namespace FruitScapes.MapController
         {
             FallingDown();
             StartCoroutine(SpawnNewGems());
-
         }
         private IEnumerator SpawnNewGems()
         {

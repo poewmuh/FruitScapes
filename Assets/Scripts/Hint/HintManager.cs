@@ -14,6 +14,7 @@ namespace FruitScapes.Hint
         [SerializeField]
         private float timeToHint;
         private float timer = 0;
+        private bool stopTimer;
 
         private void Start()
         {
@@ -23,7 +24,8 @@ namespace FruitScapes.Hint
 
         private void Update()
         {
-            timer += Time.deltaTime;
+            if (stopTimer == false)
+                timer += Time.deltaTime;
             if (timer > timeToHint)
             {
                 if (TryFindHint(true) == false)
@@ -37,6 +39,15 @@ namespace FruitScapes.Hint
             timer = 0;
         }
 
+        public void StopTimer()
+        {
+            stopTimer = true;
+        }
+
+        public void ContinueTimer()
+        {
+            stopTimer = false;
+        }
 
         public bool TryFindHint(bool isBigHint, bool onlycheck = false)
         {

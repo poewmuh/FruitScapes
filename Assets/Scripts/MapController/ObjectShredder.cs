@@ -4,7 +4,7 @@ using UnityEngine;
 using FruitScapes.Components;
 using FruitScapes.Tiles;
 using FruitScapes.Events;
-
+using FruitScapes.Audio;
 
 namespace FruitScapes.MapController
 {
@@ -19,6 +19,7 @@ namespace FruitScapes.MapController
         public IEnumerator FruitsDestroy(GameObject[,] allObjects, float destroyTime)
         {
             TilesController tilesControll = new TilesController();
+            List<Combine> dieFruits = new List<Combine>();
             yield return new WaitForSeconds(destroyTime + 0.01f);
             for (int i = 0; i < allObjects.GetLength(0); i++)
             {
@@ -29,6 +30,7 @@ namespace FruitScapes.MapController
                     {
                         if (combinedFruit.iDie)
                         {
+                            dieFruits.Add(combinedFruit);
                             Vector2 fruitPos = allObjects[i, j].transform.position;
                             Object.Destroy(allObjects[i, j]);
                             allObjects[i, j] = tilesControll.CreateEmpty(fruitPos);
@@ -38,6 +40,8 @@ namespace FruitScapes.MapController
                 }
             }
             EventHolder.destroyEvent.Invoke();
+            EventHolder.destroyFruits.Invoke(dieFruits);
+            AudioManager.Instance.PlayExplosion();
             yield break;
         }
     }

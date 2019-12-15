@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: de7d9778344aa5e489f61683f385ac8e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - gameOST: {fileID: 8300000, guid: ce7c6c6d713c65d4e9b7913d0eea2bca, type: 3}
+  - mainTheme: {fileID: 8300000, guid: 781a46a780dd618449ef22ef1cfd8279, type: 3}
+  - swipe: {fileID: 8300000, guid: 5def9dd62ac86e44faf56e1fbd929fd8, type: 3}
+  - explosion: {fileID: 8300000, guid: fa436cbe341cc094892a7b30fb709eff, type: 3}
+  - lost: {fileID: 8300000, guid: 228ec77cb8cb3ca49b07dbc4ce7f7d11, type: 3}
+  - win: {fileID: 8300000, guid: 1ffa87d441011c14ebdc10dd84c6193e, type: 3}
+  - shuffle: {fileID: 8300000, guid: b1bdf6331616785429e5c1f3fb7f9af6, type: 3}
+  - buttonSound: {fileID: 8300000, guid: b4780c2cc39ad584681c5eb83ec3ae40, type: 3}
+  - knock: {fileID: 8300000, guid: f718cb1e11388b04dace11ea13b1f705, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
