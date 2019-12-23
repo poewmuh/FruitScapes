@@ -15,6 +15,15 @@ namespace FruitScapes.Audio
 
         public static AudioManager Instance = null;
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void CreateAudioManager()
+        {
+            GameObject audio = new GameObject("Audio Manager");
+            audio.AddComponent<AudioManager>();
+            audio.AddComponent<AudioSource>().playOnAwake = false;
+            audio.GetComponent<AudioSource>().loop = true;
+        }
+
         private void Awake()
         {
             if (Instance == null)

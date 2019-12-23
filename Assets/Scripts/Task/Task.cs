@@ -48,6 +48,10 @@ namespace FruitScapes.Task
             {
                 _curCount++;
                 _sourceText.text = _curCount.ToString() + '/' + _maxCount.ToString();
+                if (_curCount == _maxCount)
+                {
+                    _sourceText.text = "Compliete";
+                }
             }
         }
     }
